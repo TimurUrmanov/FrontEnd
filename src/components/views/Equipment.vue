@@ -2,7 +2,6 @@
   <div class="equipment">
     <h1>Туристичне спорядження</h1>
 
-    <!-- Розділ оренди спорядження -->
     <div class="section">
       <h2>Оренда спорядження</h2>
       <input
@@ -16,12 +15,11 @@
           <img :src="item.image" :alt="item.name" />
           <h3>{{ item.name }}</h3>
           <p>{{ item.description }}</p>
-          <button @click="selectItem(item)">Орендувати</button>
+          <button @click="bookGear(item)">Орендувати</button>
         </div>
       </div>
     </div>
 
-    <!-- Розділ покупки спорядження -->
     <div class="section">
       <h2>Покупка спорядження</h2>
       <input
@@ -35,7 +33,7 @@
           <img :src="item.image" :alt="item.name" />
           <h3>{{ item.name }}</h3>
           <p>{{ item.description }}</p>
-          <button @click="selectItem(item)">Придбати</button>
+          <button @click="bookGear(item)">Придбати</button>
         </div>
       </div>
     </div>
@@ -43,38 +41,20 @@
 </template>
 
 <script>
-import { rentEquipment } from '@/components/conect/RentalsAPI';
+import {
+  getRentalGear,
+  getSaleGear,
+  addEquipmentBooking
+} from '@/components/conect/EquipmentAPI'; // Імпортуємо API функції
 
 export default {
-  name: "EquipmentList", // Назва компонента
+  name: "TourEquipment",
   data() {
     return {
-      rentalSearch: "", // Пошуковий запит для оренди
-      saleSearch: "", // Пошуковий запит для покупки
-      rentalGear: [ // Список орендованого спорядження
-        { id: 1, name: "Електросамокат", image: "/image/Спорядження/Оренда/electroscooter.jpg", description: "Для пересування по містах." },
-        { id: 2, name: "Велосипед", image: "/image/Спорядження/Оренда/bicycle.jpg", description: "Для міських або гірських подорожей." },
-        { id: 3, name: "Палатка", image: "/image/Спорядження/Оренда/tent.jpg", description: "Для кемпінгу або трекінгу." },
-        { id: 4, name: "Спальний мішок", image: "/image/Спорядження/Оренда/sleeping_bag.jpg", description: "Для комфортного ночівлі на природі." },
-        { id: 5, name: "Обладнання для кемпінгу", image: "/image/Спорядження/Оренда/camping_gear.jpg", description: "Столи, стільці, кухонні прилади." },
-        { id: 6, name: "Скуба-дайвінг обладнання", image: "/image/Спорядження/Оренда/scuba_gear.jpg", description: "Для підводного плавання." },
-        { id: 7, name: "Гірські лижі", image: "/image/Спорядження/Оренда/ski.jpg", description: "Для зимових відпочинків." },
-        { id: 8, name: "Туристичний рюкзак", image: "/image/Спорядження/Оренда/backpack.jpg", description: "Різних розмірів для подорожей." },
-        { id: 9, name: "Лодка або каное", image: "/image/Спорядження/Оренда/boat.jpg", description: "Для активного відпочинку на воді." },
-        { id: 10, name: "Гамак", image: "/image/Спорядження/Оренда/hammock.jpg", description: "Для комфортного відпочинку на природі." }
-      ],
-      saleGear: [ // Список спорядження для продажу
-        { id: 11, name: "Сонцезахисний крем", image: "/image/Спорядження/Продаж/sunscreen.jpg", description: "Для захисту від ультрафіолету." },
-        { id: 12, name: "Туристичний набір 4 в 1", image: "/image/Спорядження/Продаж/travel_kit.jpg", description: "Ніж, лопата, сокира, пила" },
-        { id: 13, name: "Туристичне взуття", image: "/image/Спорядження/Продаж/boots.jpg", description: "Черевики, сандалії для різних типів подорожей." },
-        { id: 14, name: "Мультитул", image: "/image/Спорядження/Продаж/multitool.jpg", description: "Універсальний інструмент для різних потреб." },
-        { id: 15, name: "Компас", image: "/image/Спорядження/Продаж/compass.jpg", description: "Для орієнтації на місцевості." },
-        { id: 16, name: "Термос", image: "/image/Спорядження/Продаж/thermos.jpg", description: "Для збереження води." },
-        { id: 17, name: "Одяг для активного відпочинку", image: "/image/Спорядження/Продаж/clothing.jpg", description: "Штани, футболки, куртки для туризму." },
-        { id: 18, name: "Павербанк", image: "/image/Спорядження/Продаж/power_bank.jpg", description: "Для підтримки заряду у пристроях." },
-        { id: 19, name: "Засоби від комарів", image: "/image/Спорядження/Продаж/repellent.jpg", description: "Спреї, браслети." },
-        { id: 20, name: "Медичний набір", image: "/image/Спорядження/Продаж/first_aid_kit.jpg", description: "Аптечка для домедичної допомоги." }
-      ]
+      rentalSearch: "",
+      saleSearch: "",
+      rentalGear: [], // Список орендованого спорядження
+      saleGear: []    // Список спорядження для продажу
     };
   },
   computed: {
@@ -90,19 +70,28 @@ export default {
     }
   },
   methods: {
-    async selectItem(item) {
-      const userId = 1; // ID користувача (можна отримати з сесії або авторизації)
-      const rentalPeriod = 5; // Приклад періоду оренди (5 днів)
-
+    async loadGear() {
       try {
-        // Викликаємо API для оренди спорядження
-        const rentalData = await rentEquipment(item.id, userId, rentalPeriod);
-        alert(`Оренда успішно оформлена для: ${item.name}`);
-        console.log(rentalData); // Лог даних оренди для подальшої обробки
+        const rentalData = await getRentalGear(); // Завантаження орендованого спорядження
+        const saleData = await getSaleGear();     // Завантаження спорядження для продажу
+        this.rentalGear = rentalData;
+        this.saleGear = saleData;
       } catch (error) {
-        alert('Не вдалося оформити оренду');
+        console.error("Не вдалося завантажити спорядження:", error);
+      }
+    },
+    async bookGear(item) {
+      try {
+        await addEquipmentBooking(item);
+        alert(`Бронювання спорядження "${item.name}" успішне!`);
+      } catch (error) {
+        alert("Сталася помилка при бронюванні. Спробуйте ще раз.");
+        console.error("Помилка бронювання:", error);
       }
     }
+  },
+  async mounted() {
+    await this.loadGear();
   }
 };
 </script>

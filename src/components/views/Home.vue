@@ -9,14 +9,11 @@
     <div class="tour-section">
       <h2>Подорожі Україною</h2>
       <div class="tour-slider">
-        <div
-          class="tour"
-          v-for="tour in filteredUkrainianTours"
-          :key="tour.id"
-        >
+        <div class="tour" v-for="tour in filteredUkrainianTours" :key="tour.id">
           <img :src="tour.image" :alt="tour.name" />
           <h3>{{ tour.name }}</h3>
           <p>{{ tour.description }}</p>
+          <p><strong>Ціна:</strong> {{ tour.price }} грн</p>
           <button @click="selectTour(tour)">Переглянути</button>
         </div>
       </div>
@@ -29,6 +26,7 @@
           <img :src="tour.image" :alt="tour.name" />
           <h3>{{ tour.name }}</h3>
           <p>{{ tour.description }}</p>
+          <p><strong>Ціна:</strong> {{ tour.price }} грн</p>
           <button @click="selectTour(tour)">Переглянути</button>
         </div>
       </div>
@@ -37,38 +35,23 @@
 </template>
 
 <script>
+import { getTours } from '@/components/conect/ToursAPI';
+
 export default {
-  name: "HomePage",
+  name: 'HomePage',
   data() {
     return {
-      searchQuery: "",
-      ukrainianTours: [
-        { id: 1, name: "Карпати", image: "/image/Тури/Укр/carpathians.jpg", description: "Похід в Карпати з гідом." },
-        { id: 2, name: "Київ", image: "/image/Тури/Укр/kyiv.jpg", description: "Оглядова екскурсія по столиці." },
-        { id: 3, name: "Львів", image: "/image/Тури/Укр/lviv.jpg", description: "Кавова історія Львова." },
-        { id: 4, name: "Одеса", image: "/image/Тури/Укр/odesa.jpg", description: "Морський відпочинок на півдні." },
-        { id: 5, name: "Кам'янець-Подільський", image: "/image/Тури/Укр/kamyanets.jpg", description: "Фортеця та фестивалі." },
-        { id: 6, name: "Буковель", image: "/image/Тури/Укр/bukovel.jpg", description: "Гірськолижний курорт." },
-        { id: 7, name: "Ужгород", image: "/image/Тури/Укр/uzhhorod.jpg", description: "Місто сакур і вин." },
-        { id: 8, name: "Харків", image: "/image/Тури/Укр/kharkiv.jpg", description: "Технопарк, зоопарк, екскурсії." },
-        { id: 9, name: "Полтава", image: "/image/Тури/Укр/poltava.jpg", description: "Культурна столиця Лівобережжя." },
-        { id: 10, name: "Чернівці", image: "/image/Тури/Укр/chernivtsi.jpg", description: "Місто з європейською архітектурою." }
-      ],
-      worldTours: [
-        { id: 11, name: "Таїланд", image: "/image/Тури/Світ/thailand.jpg", description: "Пляжний відпочинок у Пхукеті." },
-        { id: 12, name: "Єгипет", image: "/image/Тури/Світ/egypt.jpg", description: "Піраміди, Ніл, дайвінг." },
-        { id: 13, name: "Італія", image: "/image/Тури/Світ/italy.jpg", description: "Рим, Венеція та гастротури." },
-        { id: 14, name: "Іспанія", image: "/image/Тури/Світ/spain.jpg", description: "Барселона, Севілья, мадридське сонце." },
-        { id: 15, name: "Франція", image: "/image/Тури/Світ/france.jpg", description: "Париж та Лувр." },
-        { id: 16, name: "Туреччина", image: "/image/Тури/Світ/turkey.jpg", description: "Анталія, Бодрум, Каппадокія." },
-        { id: 17, name: "Чехія", image: "/image/Тури/Світ/czech.jpg", description: "Прага та старе місто." },
-        { id: 18, name: "Німеччина", image: "/image/Тури/Світ/germany.jpg", description: "Берлін та Баварія." },
-        { id: 19, name: "Індонезія (Балі)", image: "/image/Тури/Світ/bali.jpg", description: "Тропічний рай на острові Балі." },
-        { id: 20, name: "США (Нью-Йорк)", image: "/image/Тури/Світ/ny.jpg", description: "Мегаполіс, Бродвей, Центральний парк." }
-      ]
+      searchQuery: '',
+      allTours: [],
     };
   },
   computed: {
+    ukrainianTours() {
+      return this.allTours.filter(tour => tour.region === 'Україна');
+    },
+    worldTours() {
+      return this.allTours.filter(tour => tour.region !== 'Україна');
+    },
     filteredUkrainianTours() {
       return this.ukrainianTours.filter(tour =>
         tour.name.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -83,6 +66,13 @@ export default {
   methods: {
     selectTour(tour) {
       alert(`Ви вибрали тур: ${tour.name}`);
+    }
+  },
+  async mounted() {
+    try {
+      this.allTours = await getTours();
+    } catch (error) {
+      console.error('Не вдалося завантажити тури:', error);
     }
   }
 };
@@ -101,7 +91,7 @@ export default {
   margin: 10px 0;
   padding: 8px;
   width: 100%;
-  max-width: 450px; 
+  max-width: 450px;
   border-radius: 4px;
   border: 1px solid #ddd;
   font-size: 14px;
