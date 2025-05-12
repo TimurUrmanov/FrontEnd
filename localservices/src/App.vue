@@ -1,81 +1,100 @@
-<script setup>
-</script>
-
 <template>
-  <div>
-    <nav style="background: #f5f5f5; padding: 10px;">
-      <ul style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
-        <li><RouterLink to="/">Головна</RouterLink></li>
-        <li><RouterLink to="/services">Послуги</RouterLink></li>
-        <li><RouterLink to="/auth">Вхід / Реєстрація</RouterLink></li>
-        <li><RouterLink to="/dashboard">Кабінет</RouterLink></li>
-      </ul>
-    </nav>
+  <div id="app">
+    <header class="main-header">
+      <div class="header-content">
+        <div class="logo">
+          <h1>Онлайн-сервіс замовлення послуг</h1>
+          <p class="subtitle">Знайди перевіреного фахівця для будь-якого завдання</p>
+        </div>
+        <nav class="corner-buttons">
+          <button class="nav-button" @click="goToHome">Головна</button>
+          <button class="nav-button" @click="goToProfile">Особистий кабінет</button>
+        </nav>
+      </div>
+    </header>
 
-    <RouterView />
+    <router-view />
   </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<script>
+export default {
+  name: 'MainApp',
+  methods: {
+    goToHome() {
+      this.$router.push({ name: 'home' });
+    },
+    goToCreateOrder() {
+      this.$router.push({ name: 'create-order' }); // замінити на актуальний маршрут
+    },
+    goToProfile() {
+      this.$router.push({ name: 'profile' });
+    }
+  }
+};
+</script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
+.main-header {
+  background: linear-gradient(90deg, #1e88e5, #42a5f5);
+  color: white;
+  padding: 40px 0;
   text-align: center;
-  margin-top: 2rem;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.header-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.logo h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+.subtitle {
+  font-size: 1.2rem;
+  margin-top: 0;
+  color: #e0f7fa;
 }
 
-nav a:first-of-type {
-  border: 0;
+.corner-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+.nav-button {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background-color: #ff5722;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.nav-button:hover {
+  background-color: #e64a19;
 }
 </style>
